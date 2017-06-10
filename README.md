@@ -20,6 +20,8 @@ c.line_to(100, 100)
 c.stroke();
 ```
 
+You must install pixman and cairo library.
+
 ## License
 under the BSD License:
 - see LICENSE file
