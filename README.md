@@ -22,6 +22,8 @@ c.stroke();
 
 You must install pixman and cairo library.
 
+This is only prototype implementation.
+
 ## License
 under the BSD License:
 - see LICENSE file
