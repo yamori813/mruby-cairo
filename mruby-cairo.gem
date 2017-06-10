@@ -1,0 +1,6 @@
+name: mruby-cairo
+description: Cairo class
+author: Hiroki Mori
+website: https://github.com/yamori813/mruby-cairo
+protocol: git
+repository: https://github.com/yamori813/mruby-cairo.git
