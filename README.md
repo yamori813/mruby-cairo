@@ -13,13 +13,11 @@ end
 ```
 ## example
 ```ruby
-p Cairo.hi
-#=> "hi!!"
-t = Cairo.new "hello"
-p t.hello
-#=> "hello"
-p t.bye
-#=> "hello bye"
+c = Cairo.new(120, 160)
+c.set_source_rgb(0, 0, 1)
+c.move_to(0, 0)
+c.line_to(100, 100)
+c.stroke();
 ```
 
 ## License
