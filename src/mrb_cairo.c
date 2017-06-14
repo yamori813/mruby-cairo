@@ -127,6 +127,22 @@ static mrb_value mrb_cairo_show_text(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(0);
 }
 
+static mrb_value mrb_cairo_print_png(mrb_state *mrb, mrb_value self)
+{
+  char *filename;
+  int x, y;
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  mrb_get_args(mrb, "iiz", &x, &y, &filename);
+  cairo_surface_t *png = cairo_image_surface_create_from_png (filename);
+  cairo_set_source_surface(data->c, png, x, y);
+  cairo_paint(data->c);
+  cairo_surface_flush(data->cs);
+  cairo_surface_destroy(png);
+
+  return mrb_fixnum_value(0);
+}
+
 static mrb_value mrb_cairo_stroke(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data = DATA_PTR(self);
@@ -140,16 +156,16 @@ static mrb_value mrb_cairo_getpix(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data = DATA_PTR(self);
   mrb_value res;
-  int x, y;
+  int x, y, c;
   int i;
 
-  mrb_get_args(mrb, "ii", &x, &y);
+  mrb_get_args(mrb, "iii", &x, &y, &c);
 
   cairo_surface_flush(data->cs);
   unsigned char *ptr = cairo_image_surface_get_data(data->cs);
   ptr += y * data->w * 4 + x * 4;
   res = mrb_ary_new(mrb);
-  for (i = 0; i < 4; ++i)
+  for (i = 0; i < 4*c; ++i)
     mrb_ary_push(mrb, res, mrb_fixnum_value(*ptr++));
 
   return res;
@@ -167,8 +183,9 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "arc", mrb_cairo_arc, MRB_ARGS_REQ(5));
   mrb_define_method(mrb, cairo, "set_font_size", mrb_cairo_set_font_size, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "show_text", mrb_cairo_show_text, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, cairo, "print_png", mrb_cairo_print_png, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "stroke", mrb_cairo_stroke, MRB_ARGS_NONE());
-  mrb_define_method(mrb, cairo, "getpix", mrb_cairo_getpix, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, cairo, "getpix", mrb_cairo_getpix, MRB_ARGS_REQ(3));
   DONE;
 }
 
