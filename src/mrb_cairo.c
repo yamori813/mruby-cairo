@@ -143,6 +143,15 @@ static mrb_value mrb_cairo_print_png(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(0);
 }
 
+static mrb_value mrb_cairo_paint(mrb_state *mrb, mrb_value self)
+{
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  cairo_paint(data->c);
+
+  return mrb_fixnum_value(0);
+}
+
 static mrb_value mrb_cairo_stroke(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data = DATA_PTR(self);
@@ -184,6 +193,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "set_font_size", mrb_cairo_set_font_size, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "show_text", mrb_cairo_show_text, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "print_png", mrb_cairo_print_png, MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, cairo, "paint", mrb_cairo_paint, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "stroke", mrb_cairo_stroke, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "getpix", mrb_cairo_getpix, MRB_ARGS_REQ(3));
   DONE;
