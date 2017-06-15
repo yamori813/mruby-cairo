@@ -1,8 +1,10 @@
 MRuby::Gem::Specification.new('mruby-cairo') do |spec|
   spec.license = 'BSD'
   spec.authors = 'Hiroki Mori'
-  spec.linker.libraries << ['cairo', 'pixman-1', 'png', 'z']
+  spec.linker.libraries << ['cairo', 'pixman-1', 'png', 'z', 'freetype', 'fontconfig', 'expat']
   spec.cc.include_paths << "/usr/local/include/cairo/"
+  spec.cc.include_paths << "/usr/local/include/freetype2"
+  spec.cc.include_paths << "/usr/local/include/"
   if(ENV['ZWORLDDESTDIR'] != nil)
     spec.linker.library_paths << (ENV['ZWORLDDESTDIR'] + '/usr/local/lib')
   else

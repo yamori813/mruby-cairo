@@ -12,6 +12,9 @@
 #include "mrb_cairo.h"
 
 #include <cairo.h>
+#include <cairo-ft.h>
+#include <fontconfig/fontconfig.h>
+#include <fontconfig/fcfreetype.h>
 
 #define DONE mrb_gc_arena_restore(mrb, 0);
 
@@ -127,6 +130,27 @@ static mrb_value mrb_cairo_show_text(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(0);
 }
 
+static mrb_value mrb_cairo_ft_font_face_create(mrb_state *mrb, mrb_value self)
+{
+  char *filename;
+  mrb_cairo_data *data = DATA_PTR(self);
+  int face_count;
+  FcPattern *pattern;
+  cairo_font_face_t *font_face;
+
+  mrb_get_args(mrb, "z", &filename);
+
+  pattern = FcFreeTypeQuery ((unsigned char *)filename, 0, NULL, &face_count);
+  if (! pattern) {
+    return mrb_fixnum_value(0);
+  }
+
+  font_face = cairo_ft_font_face_create_for_pattern (pattern);
+  cairo_set_font_face (data->c, font_face);
+
+  return mrb_fixnum_value(0);
+}
+
 static mrb_value mrb_cairo_print_png(mrb_state *mrb, mrb_value self)
 {
   char *filename;
@@ -225,6 +249,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "arc", mrb_cairo_arc, MRB_ARGS_REQ(5));
   mrb_define_method(mrb, cairo, "set_font_size", mrb_cairo_set_font_size, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "show_text", mrb_cairo_show_text, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, cairo, "font_create", mrb_cairo_ft_font_face_create, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "print_png", mrb_cairo_print_png, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "translate", mrb_cairo_translate, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "scale", mrb_cairo_scale, MRB_ARGS_REQ(2));
