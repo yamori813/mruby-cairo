@@ -143,6 +143,39 @@ static mrb_value mrb_cairo_print_png(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(0);
 }
 
+static mrb_value mrb_cairo_translate(mrb_state *mrb, mrb_value self)
+{
+  double tx, ty;
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  mrb_get_args(mrb, "ff", &tx, &ty);
+  cairo_translate(data->c, tx, ty);
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_cairo_scale(mrb_state *mrb, mrb_value self)
+{
+  double sx, sy;
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  mrb_get_args(mrb, "ff", &sx, &sy);
+  cairo_scale(data->c, sx, sy);
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_cairo_rotate(mrb_state *mrb, mrb_value self)
+{
+  double angle;
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  mrb_get_args(mrb, "f", &angle);
+  cairo_rotate(data->c, angle);
+
+  return mrb_fixnum_value(0);
+}
+
 static mrb_value mrb_cairo_paint(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data = DATA_PTR(self);
@@ -193,6 +226,9 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "set_font_size", mrb_cairo_set_font_size, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "show_text", mrb_cairo_show_text, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "print_png", mrb_cairo_print_png, MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, cairo, "translate", mrb_cairo_translate, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, cairo, "scale", mrb_cairo_scale, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, cairo, "rotate", mrb_cairo_rotate, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "paint", mrb_cairo_paint, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "stroke", mrb_cairo_stroke, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "getpix", mrb_cairo_getpix, MRB_ARGS_REQ(3));
