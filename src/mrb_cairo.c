@@ -86,6 +86,17 @@ static mrb_value mrb_cairo_line_to(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(0);
 }
 
+static mrb_value mrb_cairo_set_line_width(mrb_state *mrb, mrb_value self)
+{
+  double width;
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  mrb_get_args(mrb, "f", &width);
+  cairo_set_line_width(data->c, width);
+
+  return mrb_fixnum_value(0);
+}
+
 static mrb_value mrb_cairo_rectangle(mrb_state *mrb, mrb_value self)
 {
   double x, y, width, height;
@@ -104,6 +115,24 @@ static mrb_value mrb_cairo_arc(mrb_state *mrb, mrb_value self)
 
   mrb_get_args(mrb, "fffff", &xc, &yc, &radius, &angle1, &angle2);
   cairo_arc(data->c, xc, yc, radius, angle1, angle2);
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_cairo_fill(mrb_state *mrb, mrb_value self)
+{
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  cairo_fill(data->c);
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_cairo_fill_preserve(mrb_state *mrb, mrb_value self)
+{
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  cairo_fill_preserve(data->c);
 
   return mrb_fixnum_value(0);
 }
@@ -245,8 +274,11 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "set_source_rgb", mrb_cairo_set_source_rgb, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "move_to", mrb_cairo_move_to, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "line_to", mrb_cairo_line_to, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, cairo, "set_line_width", mrb_cairo_set_line_width, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "rectangle", mrb_cairo_rectangle, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, cairo, "arc", mrb_cairo_arc, MRB_ARGS_REQ(5));
+  mrb_define_method(mrb, cairo, "fill", mrb_cairo_fill, MRB_ARGS_NONE());
+  mrb_define_method(mrb, cairo, "fill_preserve", mrb_cairo_fill_preserve, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "set_font_size", mrb_cairo_set_font_size, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "show_text", mrb_cairo_show_text, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "font_create", mrb_cairo_ft_font_face_create, MRB_ARGS_REQ(1));
