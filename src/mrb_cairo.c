@@ -274,7 +274,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "set_source_rgb", mrb_cairo_set_source_rgb, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "move_to", mrb_cairo_move_to, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "line_to", mrb_cairo_line_to, MRB_ARGS_REQ(2));
-  mrb_define_method(mrb, cairo, "set_line_width", mrb_cairo_set_line_width, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, cairo, "set_line_width", mrb_cairo_set_line_width, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "rectangle", mrb_cairo_rectangle, MRB_ARGS_REQ(4));
   mrb_define_method(mrb, cairo, "arc", mrb_cairo_arc, MRB_ARGS_REQ(5));
   mrb_define_method(mrb, cairo, "fill", mrb_cairo_fill, MRB_ARGS_NONE());
