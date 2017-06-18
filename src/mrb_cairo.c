@@ -175,7 +175,9 @@ static mrb_value mrb_cairo_ft_font_face_create(mrb_state *mrb, mrb_value self)
   }
 
   font_face = cairo_ft_font_face_create_for_pattern (pattern);
+  FcPatternDestroy (pattern);
   cairo_set_font_face (data->c, font_face);
+  cairo_font_face_destroy (font_face);
 
   return mrb_fixnum_value(0);
 }
@@ -192,6 +194,18 @@ static mrb_value mrb_cairo_print_png(mrb_state *mrb, mrb_value self)
   cairo_paint(data->c);
   cairo_surface_flush(data->cs);
   cairo_surface_destroy(png);
+
+  return mrb_fixnum_value(0);
+}
+
+static mrb_value mrb_cairo_save_png(mrb_state *mrb, mrb_value self)
+{
+  char *filename;
+  int x, y;
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  mrb_get_args(mrb, "z", &filename);
+  cairo_surface_write_to_png(data->cs, filename);
 
   return mrb_fixnum_value(0);
 }
@@ -283,6 +297,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "show_text", mrb_cairo_show_text, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "font_create", mrb_cairo_ft_font_face_create, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "print_png", mrb_cairo_print_png, MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, cairo, "save_png", mrb_cairo_save_png, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "translate", mrb_cairo_translate, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "scale", mrb_cairo_scale, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "rotate", mrb_cairo_rotate, MRB_ARGS_REQ(1));
