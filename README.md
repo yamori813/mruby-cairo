@@ -22,6 +22,7 @@ c.save_png("test.png");
 ```
 
 You must install pixman and cairo library.
+Also need png, fontconfig, freetype library.
 
 This is only prototype implementation.
 
