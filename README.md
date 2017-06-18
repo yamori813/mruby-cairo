@@ -18,6 +18,7 @@ c.set_source_rgb(0, 0, 1)
 c.move_to(0, 0)
 c.line_to(100, 100)
 c.stroke();
+c.save_png("test.png");
 ```
 
 You must install pixman and cairo library.
