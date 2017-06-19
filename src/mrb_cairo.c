@@ -6,6 +6,9 @@
 ** See Copyright Notice in LICENSE
 */
 
+#include <sys/types.h>
+#include <unistd.h>
+
 #include "mruby.h"
 #include "mruby/data.h"
 #include "mruby/array.h"
@@ -201,11 +204,34 @@ static mrb_value mrb_cairo_print_png(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_cairo_save_png(mrb_state *mrb, mrb_value self)
 {
   char *filename;
-  int x, y;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "z", &filename);
   cairo_surface_write_to_png(data->cs, filename);
+
+  return mrb_fixnum_value(0);
+}
+
+static cairo_status_t
+write_png_stream_to_fd (void *in_closure, const unsigned char *data,
+                                                unsigned int length)
+{
+  int fd = *((int *)in_closure);
+
+  write(fd, data, length);
+
+  return CAIRO_STATUS_SUCCESS;
+}
+
+
+static mrb_value mrb_cairo_write_png(mrb_state *mrb, mrb_value self)
+{
+  int fd;
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  mrb_get_args(mrb, "i", &fd);
+
+  cairo_surface_write_to_png_stream (data->cs, write_png_stream_to_fd, &fd);
 
   return mrb_fixnum_value(0);
 }
@@ -298,6 +324,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "font_create", mrb_cairo_ft_font_face_create, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "print_png", mrb_cairo_print_png, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "save_png", mrb_cairo_save_png, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, cairo, "write_png", mrb_cairo_write_png, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "translate", mrb_cairo_translate, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "scale", mrb_cairo_scale, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "rotate", mrb_cairo_rotate, MRB_ARGS_REQ(1));
