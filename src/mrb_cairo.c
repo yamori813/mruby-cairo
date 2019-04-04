@@ -167,6 +167,7 @@ static mrb_value mrb_cairo_text_extents(mrb_state *mrb, mrb_value self)
   char *utf8;
   mrb_cairo_data *data = DATA_PTR(self);
   cairo_text_extents_t exte;
+  mrb_value res;
 
   mrb_get_args(mrb, "z", &utf8);
   cairo_text_extents(data->c, utf8, &exte);
