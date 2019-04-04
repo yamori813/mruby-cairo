@@ -171,8 +171,8 @@ static mrb_value mrb_cairo_text_extents(mrb_state *mrb, mrb_value self)
   mrb_get_args(mrb, "z", &utf8);
   cairo_text_extents(data->c, utf8, &exte);
   res = mrb_ary_new(mrb);
-  mrb_ary_push(mrb, res, mrb_float_value(exte.width));
-  mrb_ary_push(mrb, res, mrb_float_value(exte.height));
+  mrb_ary_push(mrb, res, mrb_float_value(mrb, exte.width));
+  mrb_ary_push(mrb, res, mrb_float_value(mrb, exte.height));
 
   return res;
 }
