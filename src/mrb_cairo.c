@@ -162,6 +162,21 @@ static mrb_value mrb_cairo_show_text(mrb_state *mrb, mrb_value self)
   return mrb_fixnum_value(0);
 }
 
+static mrb_value mrb_cairo_text_extents(mrb_state *mrb, mrb_value self)
+{
+  char *utf8;
+  mrb_cairo_data *data = DATA_PTR(self);
+  cairo_text_extents_t exte;
+
+  mrb_get_args(mrb, "z", &utf8);
+  cairo_text_extents(data->c, utf8, &exte);
+  res = mrb_ary_new(mrb);
+  mrb_ary_push(mrb, res, mrb_float_value(exte.width));
+  mrb_ary_push(mrb, res, mrb_float_value(exte.height));
+
+  return res;
+}
+
 static mrb_value mrb_cairo_ft_font_face_create(mrb_state *mrb, mrb_value self)
 {
   char *filename;
@@ -321,6 +336,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "fill_preserve", mrb_cairo_fill_preserve, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "set_font_size", mrb_cairo_set_font_size, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "show_text", mrb_cairo_show_text, MRB_ARGS_REQ(1));
+  mrb_define_method(mrb, cairo, "text_extents", mrb_cairo_text_extents, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "font_create", mrb_cairo_ft_font_face_create, MRB_ARGS_REQ(1));
   mrb_define_method(mrb, cairo, "print_png", mrb_cairo_print_png, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "save_png", mrb_cairo_save_png, MRB_ARGS_REQ(1));
