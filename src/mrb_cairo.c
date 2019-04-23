@@ -12,6 +12,7 @@
 #include "mruby.h"
 #include "mruby/data.h"
 #include "mruby/array.h"
+#include "mruby/class.h"
 #include "mrb_cairo.h"
 
 #include <cairo.h>
@@ -351,6 +352,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
 {
   struct RClass *cairo;
   cairo = mrb_define_class(mrb, "Cairo", mrb->object_class);
+  MRB_SET_INSTANCE_TT(cairo, MRB_TT_DATA);
   mrb_define_method(mrb, cairo, "initialize", mrb_cairo_init, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "set_source_rgb", mrb_cairo_set_source_rgb, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "move_to", mrb_cairo_move_to, MRB_ARGS_REQ(2));
