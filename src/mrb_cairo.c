@@ -12,6 +12,7 @@
 #include "mruby.h"
 #include "mruby/data.h"
 #include "mruby/array.h"
+#include "mruby/class.h"
 #include "mrb_cairo.h"
 
 #include <cairo.h>
@@ -35,7 +36,7 @@ static const struct mrb_data_type mrb_cairo_data_type = {
 static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data;
-  int w, h;
+  mrb_int w, h;
 
   data = (mrb_cairo_data *)DATA_PTR(self);
   if (data) {
@@ -58,7 +59,7 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_set_source_rgb(mrb_state *mrb, mrb_value self)
 {
-  double r, g, b;
+  mrb_float r, g, b;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "fff", &r, &g, &b);
@@ -69,7 +70,7 @@ static mrb_value mrb_cairo_set_source_rgb(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_move_to(mrb_state *mrb, mrb_value self)
 {
-  double x, y;
+  mrb_float x, y;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "ff", &x , &y);
@@ -80,7 +81,7 @@ static mrb_value mrb_cairo_move_to(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_line_to(mrb_state *mrb, mrb_value self)
 {
-  double x, y;
+  mrb_float x, y;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "ff", &x , &y);
@@ -91,7 +92,7 @@ static mrb_value mrb_cairo_line_to(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_set_line_width(mrb_state *mrb, mrb_value self)
 {
-  double width;
+  mrb_float width;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "f", &width);
@@ -102,7 +103,7 @@ static mrb_value mrb_cairo_set_line_width(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_rectangle(mrb_state *mrb, mrb_value self)
 {
-  double x, y, width, height;
+  mrb_float x, y, width, height;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "ffff", &x, &y, &width, &height);
@@ -113,7 +114,7 @@ static mrb_value mrb_cairo_rectangle(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_arc(mrb_state *mrb, mrb_value self)
 {
-  double xc, yc, radius, angle1, angle2;
+  mrb_float xc, yc, radius, angle1, angle2;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "fffff", &xc, &yc, &radius, &angle1, &angle2);
@@ -142,7 +143,7 @@ static mrb_value mrb_cairo_fill_preserve(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_set_font_size(mrb_state *mrb, mrb_value self)
 {
-  double size;
+  mrb_float size;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "f", &size);
@@ -204,7 +205,7 @@ static mrb_value mrb_cairo_ft_font_face_create(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_cairo_print_png(mrb_state *mrb, mrb_value self)
 {
   char *filename;
-  int x, y;
+  mrb_int x, y;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "iiz", &x, &y, &filename);
@@ -242,7 +243,7 @@ write_png_stream_to_fd (void *in_closure, const unsigned char *data,
 
 static mrb_value mrb_cairo_write_png(mrb_state *mrb, mrb_value self)
 {
-  int fd;
+  mrb_int fd;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "i", &fd);
@@ -254,7 +255,7 @@ static mrb_value mrb_cairo_write_png(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_translate(mrb_state *mrb, mrb_value self)
 {
-  double tx, ty;
+  mrb_float tx, ty;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "ff", &tx, &ty);
@@ -265,7 +266,7 @@ static mrb_value mrb_cairo_translate(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_scale(mrb_state *mrb, mrb_value self)
 {
-  double sx, sy;
+  mrb_float sx, sy;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "ff", &sx, &sy);
@@ -276,7 +277,7 @@ static mrb_value mrb_cairo_scale(mrb_state *mrb, mrb_value self)
 
 static mrb_value mrb_cairo_rotate(mrb_state *mrb, mrb_value self)
 {
-  double angle;
+  mrb_float angle;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "f", &angle);
@@ -316,7 +317,7 @@ static mrb_value mrb_cairo_getpix(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data = DATA_PTR(self);
   mrb_value res;
-  int x, y, c;
+  mrb_int x, y, c;
   int i;
 
   mrb_get_args(mrb, "iii", &x, &y, &c);
@@ -351,6 +352,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
 {
   struct RClass *cairo;
   cairo = mrb_define_class(mrb, "Cairo", mrb->object_class);
+  MRB_SET_INSTANCE_TT(cairo, MRB_TT_DATA);
   mrb_define_method(mrb, cairo, "initialize", mrb_cairo_init, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "set_source_rgb", mrb_cairo_set_source_rgb, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "move_to", mrb_cairo_move_to, MRB_ARGS_REQ(2));
