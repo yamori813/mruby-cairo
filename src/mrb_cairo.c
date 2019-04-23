@@ -35,7 +35,7 @@ static const struct mrb_data_type mrb_cairo_data_type = {
 static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data;
-  int w, h;
+  mrb_int w, h;
 
   data = (mrb_cairo_data *)DATA_PTR(self);
   if (data) {
@@ -204,7 +204,7 @@ static mrb_value mrb_cairo_ft_font_face_create(mrb_state *mrb, mrb_value self)
 static mrb_value mrb_cairo_print_png(mrb_state *mrb, mrb_value self)
 {
   char *filename;
-  int x, y;
+  mrb_int x, y;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "iiz", &x, &y, &filename);
@@ -242,7 +242,7 @@ write_png_stream_to_fd (void *in_closure, const unsigned char *data,
 
 static mrb_value mrb_cairo_write_png(mrb_state *mrb, mrb_value self)
 {
-  int fd;
+  mrb_int fd;
   mrb_cairo_data *data = DATA_PTR(self);
 
   mrb_get_args(mrb, "i", &fd);
@@ -316,7 +316,7 @@ static mrb_value mrb_cairo_getpix(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data = DATA_PTR(self);
   mrb_value res;
-  int x, y, c;
+  mrb_int x, y, c;
   int i;
 
   mrb_get_args(mrb, "iii", &x, &y, &c);
