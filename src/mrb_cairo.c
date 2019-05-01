@@ -332,6 +332,15 @@ static mrb_value mrb_cairo_getpix(mrb_state *mrb, mrb_value self)
   return res;
 }
 
+static mrb_value mrb_cairo_get_data(mrb_state *mrb, mrb_value self)
+{
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  unsigned char *ptr = cairo_image_surface_get_data(data->cs);
+
+  return mrb_fixnum_value((int)ptr);
+}
+
 static mrb_value mrb_cairo_stroke_extents(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data = DATA_PTR(self);
@@ -376,6 +385,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   mrb_define_method(mrb, cairo, "stroke", mrb_cairo_stroke, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "restore", mrb_cairo_restore, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "getpix", mrb_cairo_getpix, MRB_ARGS_REQ(3));
+  mrb_define_method(mrb, cairo, "get_data", mrb_cairo_get_data, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "stroke_extents", mrb_cairo_stroke_extents, MRB_ARGS_NONE());
   DONE;
 }
