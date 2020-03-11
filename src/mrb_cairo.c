@@ -6,6 +6,18 @@
 ** See Copyright Notice in LICENSE
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/fcntl.h>
+#include <sys/ioctl.h>
+#include <sys/mman.h>
+#include <sys/time.h>
+
+#include <sys/consio.h>
+#include <sys/fbio.h>
+
 #include <sys/types.h>
 #include <unistd.h>
 
@@ -25,6 +37,9 @@
 typedef struct {
   int w;
   int h;
+  int fbsize;
+  unsigned char *fbuffer;
+  int fb_fd;
   cairo_surface_t *cs;
   cairo_t *c;
 } mrb_cairo_data;
@@ -33,10 +48,21 @@ static const struct mrb_data_type mrb_cairo_data_type = {
   "mrb_cairo_data", mrb_free,
 };
 
+void close_framebuffer(void *device)
+{
+  mrb_cairo_data *data = (mrb_cairo_data *)device;
+
+  munmap(data->fbuffer, data->fbsize);
+  close(data->fb_fd);
+}
+
 static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
 {
   mrb_cairo_data *data;
   mrb_int w, h;
+  struct fbtype fb;
+  int line_length;
+  int pagemask;
 
   data = (mrb_cairo_data *)DATA_PTR(self);
   if (data) {
@@ -45,13 +71,28 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
   DATA_TYPE(self) = &mrb_cairo_data_type;
   DATA_PTR(self) = NULL;
 
-  mrb_get_args(mrb, "ii", &w, &h);
+  mrb_get_args(mrb, "|ii", &w, &h);
   data = (mrb_cairo_data *)mrb_malloc(mrb, sizeof(mrb_cairo_data));
-  data->w = w;
-  data->h = h;
   DATA_PTR(self) = data;
+  if (mrb_get_argc(mrb) == 0) {
+    data->fb_fd = open("/dev/fb0", O_RDWR);
+    ioctl(data->fb_fd, FBIOGTYPE, &fb);
+    ioctl(data->fb_fd, FBIO_GETLINEWIDTH, &line_length);
+    data->w = fb.fb_width;
+    data->h = fb.fb_height;
+    pagemask = getpagesize() - 1;
+    data->fbsize = ((int) line_length*data->h + pagemask) & ~pagemask;
+    data->fbuffer = (unsigned char *)mmap(0, data-> fbsize,
+      PROT_READ | PROT_WRITE, MAP_SHARED, data->fb_fd, 0);
+    data->cs = cairo_image_surface_create_for_data (data->fbuffer,
+       CAIRO_FORMAT_ARGB32, data->w, data->h, line_length);
+    cairo_surface_set_user_data(data->cs, NULL, data, &close_framebuffer);
+  } else {
+    data->w = w;
+    data->h = h;
 
-  data->cs = cairo_image_surface_create (CAIRO_FORMAT_RGB24, data->w, data->h);
+    data->cs = cairo_image_surface_create(CAIRO_FORMAT_RGB24, data->w, data->h);
+  }
   data->c = cairo_create(data->cs);
 
   return self;
@@ -362,7 +403,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   struct RClass *cairo;
   cairo = mrb_define_class(mrb, "Cairo", mrb->object_class);
   MRB_SET_INSTANCE_TT(cairo, MRB_TT_DATA);
-  mrb_define_method(mrb, cairo, "initialize", mrb_cairo_init, MRB_ARGS_REQ(2));
+  mrb_define_method(mrb, cairo, "initialize", mrb_cairo_init, MRB_ARGS_ARG(0,2));
   mrb_define_method(mrb, cairo, "set_source_rgb", mrb_cairo_set_source_rgb, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "move_to", mrb_cairo_move_to, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "line_to", mrb_cairo_line_to, MRB_ARGS_REQ(2));
