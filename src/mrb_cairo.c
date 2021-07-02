@@ -379,7 +379,7 @@ static mrb_value mrb_cairo_get_data(mrb_state *mrb, mrb_value self)
 
   unsigned char *ptr = cairo_image_surface_get_data(data->cs);
 
-  return mrb_fixnum_value((int)ptr);
+  return mrb_int_value(mrb, ptr);
 }
 
 static mrb_value mrb_cairo_stroke_extents(mrb_state *mrb, mrb_value self)
