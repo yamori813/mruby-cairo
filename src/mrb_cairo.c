@@ -91,7 +91,7 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
     data->w = w;
     data->h = h;
 
-    data->cs = cairo_image_surface_create(CAIRO_FORMAT_RGB24, data->w, data->h);
+    data->cs = cairo_image_surface_create(CAIRO_FORMAT_RGB16_565, data->w, data->h);
   }
   data->c = cairo_create(data->cs);
 
