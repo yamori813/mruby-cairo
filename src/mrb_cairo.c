@@ -37,6 +37,7 @@
 typedef struct {
   int w;
   int h;
+  int pixbyte;
   int fbsize;
   unsigned char *fbuffer;
   int fb_fd;
@@ -80,6 +81,7 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
     ioctl(data->fb_fd, FBIO_GETLINEWIDTH, &line_length);
     data->w = fb.fb_width;
     data->h = fb.fb_height;
+    data->pixbyte = 4;
     pagemask = getpagesize() - 1;
     data->fbsize = ((int) line_length*data->h + pagemask) & ~pagemask;
     data->fbuffer = (unsigned char *)mmap(0, data-> fbsize,
@@ -90,6 +92,7 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
   } else {
     data->w = w;
     data->h = h;
+    data->pixbyte = 2;
 
     data->cs = cairo_image_surface_create(CAIRO_FORMAT_RGB16_565, data->w, data->h);
   }
@@ -365,9 +368,9 @@ static mrb_value mrb_cairo_getpix(mrb_state *mrb, mrb_value self)
 
   cairo_surface_flush(data->cs);
   unsigned char *ptr = cairo_image_surface_get_data(data->cs);
-  ptr += y * data->w * 4 + x * 4;
+  ptr += y * data->w * data->pixbyte + x * data->pixbyte;
   res = mrb_ary_new(mrb);
-  for (i = 0; i < 4*c; ++i)
+  for (i = 0; i < data->pixbyte * c; ++i)
     mrb_ary_push(mrb, res, mrb_fixnum_value(*ptr++));
 
   return res;
