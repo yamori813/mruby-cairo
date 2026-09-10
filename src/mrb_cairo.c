@@ -87,7 +87,8 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
     data->fbuffer = (unsigned char *)mmap(0, data-> fbsize,
       PROT_READ | PROT_WRITE, MAP_SHARED, data->fb_fd, 0);
     data->cs = cairo_image_surface_create_for_data (data->fbuffer,
-       CAIRO_FORMAT_ARGB32, data->w, data->h, line_length);
+//       CAIRO_FORMAT_ARGB32, data->w, data->h, line_length);
+       CAIRO_FORMAT_RGB16_565, data->w, data->h, line_length);
     cairo_surface_set_user_data(data->cs, NULL, data, &close_framebuffer);
   } else {
     data->w = w;
