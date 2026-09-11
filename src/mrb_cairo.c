@@ -15,8 +15,10 @@
 #include <sys/mman.h>
 #include <sys/time.h>
 
+#ifdef __FreeBSD__
 #include <sys/consio.h>
 #include <sys/fbio.h>
+#endif
 
 #include <sys/types.h>
 #include <unistd.h>
@@ -49,6 +51,7 @@ static const struct mrb_data_type mrb_cairo_data_type = {
   "mrb_cairo_data", mrb_free,
 };
 
+#ifdef __FreeBSD__
 void close_framebuffer(void *device)
 {
   mrb_cairo_data *data = (mrb_cairo_data *)device;
@@ -56,6 +59,7 @@ void close_framebuffer(void *device)
   munmap(data->fbuffer, data->fbsize);
   close(data->fb_fd);
 }
+#endif
 
 static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
 {
@@ -75,6 +79,7 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
   mrb_get_args(mrb, "|ii", &w, &h);
   data = (mrb_cairo_data *)mrb_malloc(mrb, sizeof(mrb_cairo_data));
   DATA_PTR(self) = data;
+#ifdef __FreeBSD__
   if (mrb_get_argc(mrb) == 0) {
     data->fb_fd = open("/dev/fb0", O_RDWR);
     ioctl(data->fb_fd, FBIOGTYPE, &fb);
@@ -87,10 +92,12 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
     data->fbuffer = (unsigned char *)mmap(0, data-> fbsize,
       PROT_READ | PROT_WRITE, MAP_SHARED, data->fb_fd, 0);
     data->cs = cairo_image_surface_create_for_data (data->fbuffer,
-//       CAIRO_FORMAT_ARGB32, data->w, data->h, line_length);
-       CAIRO_FORMAT_RGB16_565, data->w, data->h, line_length);
+      line_length == data->w * 2 ? CAIRO_FORMAT_RGB16_565 :
+      CAIRO_FORMAT_ARGB32, data->w, data->h, line_length);
     cairo_surface_set_user_data(data->cs, NULL, data, &close_framebuffer);
-  } else {
+  } else
+#endif
+  {
     data->w = w;
     data->h = h;
     data->pixbyte = 2;
