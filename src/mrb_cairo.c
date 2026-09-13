@@ -68,6 +68,8 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
   struct fbtype fb;
   int line_length;
   int pagemask;
+  int n;
+  char buf[16];
 
   data = (mrb_cairo_data *)DATA_PTR(self);
   if (data) {
@@ -80,8 +82,13 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
   data = (mrb_cairo_data *)mrb_malloc(mrb, sizeof(mrb_cairo_data));
   DATA_PTR(self) = data;
 #ifdef __FreeBSD__
-  if (mrb_get_argc(mrb) == 0) {
-    data->fb_fd = open("/dev/fb0", O_RDWR);
+  if (mrb_get_argc(mrb) == 0 || mrb_get_argc(mrb) == 1) {
+    if (mrb_get_argc(mrb) == 0)
+      n = 0;
+    else
+      n = w;
+    sprintf(buf, "/dev/fb%d", n);
+    data->fb_fd = open(buf, O_RDWR);
     ioctl(data->fb_fd, FBIOGTYPE, &fb);
     ioctl(data->fb_fd, FBIO_GETLINEWIDTH, &line_length);
     data->w = fb.fb_width;
