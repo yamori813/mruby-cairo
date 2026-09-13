@@ -109,6 +109,17 @@ static mrb_value mrb_cairo_init(mrb_state *mrb, mrb_value self)
   return self;
 }
 
+static mrb_value mrb_cairo_get_size(mrb_state *mrb, mrb_value self)
+{
+  mrb_cairo_data *data = DATA_PTR(self);
+
+  mrb_value ary = mrb_ary_new(mrb);
+  mrb_ary_push(mrb, ary, mrb_fixnum_value(data->w));
+  mrb_ary_push(mrb, ary, mrb_fixnum_value(data->h));
+
+  return ary;
+}
+
 static mrb_value mrb_cairo_set_source_rgb(mrb_state *mrb, mrb_value self)
 {
   mrb_float r, g, b;
@@ -415,6 +426,7 @@ void mrb_mruby_cairo_gem_init(mrb_state *mrb)
   cairo = mrb_define_class(mrb, "Cairo", mrb->object_class);
   MRB_SET_INSTANCE_TT(cairo, MRB_TT_DATA);
   mrb_define_method(mrb, cairo, "initialize", mrb_cairo_init, MRB_ARGS_ARG(0,2));
+  mrb_define_method(mrb, cairo, "get_size", mrb_cairo_get_size, MRB_ARGS_NONE());
   mrb_define_method(mrb, cairo, "set_source_rgb", mrb_cairo_set_source_rgb, MRB_ARGS_REQ(3));
   mrb_define_method(mrb, cairo, "move_to", mrb_cairo_move_to, MRB_ARGS_REQ(2));
   mrb_define_method(mrb, cairo, "line_to", mrb_cairo_line_to, MRB_ARGS_REQ(2));
